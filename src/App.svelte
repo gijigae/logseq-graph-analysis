@@ -18,6 +18,7 @@
   let metaDown = false;
 
   const handleKeydown = (event: KeyboardEvent) => {
+    console.log("down", event);
     if (event.key == "Escape") {
       logseq.hideMainUI();
     } else if (event.key === "Meta") {
@@ -25,6 +26,7 @@
     }
   };
   const handleKeyup = (event: KeyboardEvent) => {
+    console.log("up", event);
     if (event.key === "Meta") {
       metaDown = false;
     }
@@ -35,6 +37,7 @@
     if ($settings.mode === Mode.Navigate || metaDown) {
       const page = await logseq.Editor.getPage(+event.detail);
       if (page) {
+        metaDown = false;
         logseq.App.pushState("page", {
           name: page.name,
         });
@@ -64,12 +67,24 @@
     store.reload();
     cacheHit = true;
   }
+
+  function handleCloseClick() {
+    logseq.hideMainUI();
+  }
 </script>
 
 <svelte:window on:keydown={handleKeydown} on:keyup={handleKeyup} />
 
 <main>
   {#if $uiVisible && $graph}
+    <div class="flex flex-row justify-end pr-2">
+      <button
+        class="h-8 w-8 p-1 opacity-50 flex justify-center items-center bg-white border-0 hover:opacity-100 hover:bg-slate-100 rounded"
+        on:click={handleCloseClick}
+      >
+        <div class="i-mdi-close text-slate-600" />
+      </button>
+    </div>
     {#await $graph then graph}
       <Sigma on:nodeclick={handleNodeClick} {graph} />
       <Settings />
